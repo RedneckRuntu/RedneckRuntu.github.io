@@ -1,0 +1,17 @@
+{
+  "name": "dai-jinyan-photography",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node tools/validate-content.mjs",
+    "build": "npm run validate && node src/build.mjs",
+    "check": "node tools/check-build.mjs",
+    "preview": "python3 -m http.server 4173 --directory dist",
+    "add-photo": "node tools/add-photo.mjs",
+    "new-project": "node tools/new-project.mjs"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.4"
+  }
+}

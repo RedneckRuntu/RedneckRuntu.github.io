@@ -1,0 +1,28 @@
+[
+  {
+    "id": "nanjing-zhenze",
+    "slug": "nanjing-zhenze",
+    "title": "Nanjing × Zhenze",
+    "subtitle": "A long-term study of two places and the distance between them.",
+    "year": "2026—",
+    "location": "Jiangsu, China",
+    "description": "An open-ended photographic project about familiar streets, changing light and the quiet traces of everyday life.",
+    "cover": "old-building-yellow-flowers",
+    "featured": true,
+    "homepageOrder": 1,
+    "visible": true
+  },
+  {
+    "id": "elsewhere",
+    "slug": "elsewhere",
+    "title": "Elsewhere",
+    "subtitle": "Cities seen at a distance.",
+    "year": "2026—",
+    "location": "Japan",
+    "description": "Fragments of cities, weather and transit gathered while travelling.",
+    "cover": "snow-night",
+    "featured": true,
+    "homepageOrder": 2,
+    "visible": true
+  }
+]

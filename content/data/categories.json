@@ -1,0 +1,7 @@
+[
+  {"id":"architecture","title":"Architecture","visible":true,"order":1},
+  {"id":"street","title":"Street","visible":true,"order":2},
+  {"id":"landscape","title":"Landscape","visible":true,"order":3},
+  {"id":"night","title":"Night","visible":true,"order":4},
+  {"id":"travel","title":"Travel","visible":true,"order":5}
+]

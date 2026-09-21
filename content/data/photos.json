@@ -1,0 +1,23 @@
+[
+  {
+    "id":"old-building-yellow-flowers","src":"old-building-yellow-flowers.jpg","title":"Old Building and Yellow Flowers","date":"2026-09","location":"Nanjing","project":"nanjing-zhenze","categories":["architecture","landscape"],"orientation":"portrait","featured":true,"homepage":true,"homepageOrder":1,"archive":true,"order":1,"caption":"","alt":"Yellow flowering trees beside a pale, weathered building","visible":true
+  },
+  {
+    "id":"snow-night","src":"snow-night.jpg","title":"Snow Night","date":"2026","location":"Japan","project":"elsewhere","categories":["street","night","travel"],"orientation":"landscape","featured":true,"homepage":true,"homepageOrder":2,"archive":true,"order":1,"caption":"","alt":"A car crossing a snowy city street at night","visible":true
+  },
+  {
+    "id":"coastal-crossing","src":"coastal-crossing.jpg","title":"Coastal Crossing","date":"2026","location":"Japan","project":"elsewhere","categories":["street","travel"],"orientation":"portrait","featured":true,"homepage":true,"homepageOrder":3,"archive":true,"order":2,"caption":"","alt":"A green train passing a quiet coastal railway crossing","visible":true
+  },
+  {
+    "id":"hillside-bay","src":"hillside-bay.jpg","title":"Hillside Bay","date":"2026","location":"Japan","project":"elsewhere","categories":["landscape","travel"],"orientation":"portrait","featured":true,"homepage":true,"homepageOrder":4,"archive":true,"order":3,"caption":"","alt":"A shaded hillside path opening toward a bright bay","visible":true
+  },
+  {
+    "id":"tokyo-tower","src":"tokyo-tower.jpg","title":"Tokyo Tower","date":"2026","location":"Tokyo","project":"elsewhere","categories":["architecture","night","travel"],"orientation":"portrait","featured":true,"homepage":true,"homepageOrder":5,"archive":true,"order":4,"caption":"","alt":"Tokyo Tower glowing red over the city at night","visible":true
+  },
+  {
+    "id":"shibuya-crossing","src":"shibuya-crossing.jpg","title":"Crossing","date":"2026","location":"Tokyo","project":"elsewhere","categories":["street","travel"],"orientation":"portrait","featured":true,"homepage":false,"archive":true,"order":5,"caption":"","alt":"An elevated view of a crowded city crossing in Tokyo","visible":true
+  },
+  {
+    "id":"tokyo-bay","src":"tokyo-bay.jpg","title":"Across the Bay","date":"2026","location":"Tokyo","project":"elsewhere","categories":["landscape","travel"],"orientation":"landscape","featured":true,"homepage":false,"archive":true,"order":6,"caption":"","alt":"A statue facing Tokyo Bay beneath a warm evening sky","visible":true
+  }
+]
