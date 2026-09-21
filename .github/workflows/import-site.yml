@@ -1,0 +1,27 @@
+name: Import photography portfolio
+
+on:
+  push:
+    branches: [main]
+    paths: [dai-jinyan-site-source.tar.gz]
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Replace the old site with the prepared portfolio
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          find . -mindepth 1 -maxdepth 1 ! -name .git ! -name dai-jinyan-site-source.tar.gz -exec rm -rf {} +
+          tar -xzf dai-jinyan-site-source.tar.gz
+          rm dai-jinyan-site-source.tar.gz
+          git add -A
+          git commit -m "Build data-driven photography portfolio"
+          git push origin HEAD:main
