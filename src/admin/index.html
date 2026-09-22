@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#f2f0ea">
+  <title>摄影网站管理 — DAI JINYAN</title>
+  <link rel="canonical" href="https://daijinyan.top/admin/">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+  <header class="masthead">
+    <a href="/">DAI JINYAN <span>PHOTOGRAPHY</span></a>
+    <p>网站管理</p>
+  </header>
+
+  <main>
+    <section class="intro">
+      <p class="eyebrow">PHOTO MANAGER</p>
+      <h1>不用写代码，也能更新作品。</h1>
+      <p>连接 GitHub 后，选择照片、填写信息并点击发布。网站通常会在一分钟内自动更新。</p>
+    </section>
+
+    <section class="panel auth-panel" id="auth-panel">
+      <div>
+        <p class="step">01 / 首次连接</p>
+        <h2>连接你的网站仓库</h2>
+        <p>需要一个只允许修改这个摄影仓库的 GitHub 细粒度令牌。它只保存在当前标签页，关闭页面后自动清除。</p>
+      </div>
+      <details>
+        <summary>第一次使用：怎样创建令牌？</summary>
+        <ol>
+          <li>打开下方 GitHub 页面，点击 <b>Generate new token</b>。</li>
+          <li>名称填“摄影网站管理”，有效期建议 90 天。</li>
+          <li>Repository access 选择 <b>Only select repositories</b>，只选 <b>RedneckRuntu.github.io</b>。</li>
+          <li>Permissions → Repository permissions → Contents 选择 <b>Read and write</b>。</li>
+          <li>生成后复制令牌，粘贴到下面。令牌只显示一次。</li>
+        </ol>
+        <a class="text-link" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noreferrer">打开 GitHub 创建令牌 ↗</a>
+      </details>
+      <form id="auth-form" class="auth-form">
+        <label for="token">GitHub 令牌</label>
+        <div class="token-row">
+          <input id="token" name="token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" required>
+          <button type="submit">连接网站</button>
+        </div>
+        <p class="status" id="auth-status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="workspace" id="workspace" hidden>
+      <div class="workspace-head">
+        <div>
+          <p class="step">02 / 管理作品</p>
+          <h2>照片与展示信息</h2>
+        </div>
+        <div class="workspace-actions">
+          <span id="account-name"></span>
+          <button class="quiet" id="refresh-button" type="button">重新加载</button>
+          <button id="new-button" type="button">添加照片</button>
+        </div>
+      </div>
+
+      <div class="manager">
+        <section class="library" aria-label="已有照片">
+          <div class="library-head">
+            <h3>已有作品</h3>
+            <span id="photo-count"></span>
+          </div>
+          <div class="photo-list" id="photo-list"></div>
+        </section>
+
+        <section class="editor" aria-label="照片编辑器">
+          <div class="editor-empty" id="editor-empty">
+            <p>选择一张已有照片进行修改，或者点击“添加照片”。</p>
+          </div>
+
+          <form id="photo-form" hidden>
+            <div class="editor-title">
+              <div>
+                <p class="step" id="editor-mode">新增作品</p>
+                <h3 id="editor-heading">上传一张照片</h3>
+              </div>
+              <button class="quiet" id="cancel-button" type="button">取消</button>
+            </div>
+
+            <label class="drop-zone" for="photo-file" id="drop-zone">
+              <input id="photo-file" type="file" accept="image/jpeg,image/png,image/webp">
+              <img id="photo-preview" alt="照片预览" hidden>
+              <span id="drop-copy"><b>选择照片</b><small>JPG / PNG / WebP，建议小于 15 MB</small></span>
+            </label>
+
+            <div class="form-grid">
+              <label>作品标题<input id="title" name="title" placeholder="例如：雨后的街道"></label>
+              <label>拍摄日期<input id="date" name="date" placeholder="例如：2026-09"></label>
+              <label>拍摄地点<input id="location" name="location" placeholder="例如：Nanjing"></label>
+              <label>所属项目<select id="project" name="project" required></select></label>
+              <label>项目内顺序<input id="order" name="order" type="number" min="1" value="1"></label>
+              <label>无障碍描述<input id="alt" name="alt" required placeholder="简要描述画面内容"></label>
+            </div>
+
+            <fieldset>
+              <legend>照片分类</legend>
+              <div class="category-options" id="category-options"></div>
+            </fieldset>
+
+            <fieldset>
+              <legend>展示位置</legend>
+              <div class="switches">
+                <label><input id="featured" type="checkbox">精选作品页</label>
+                <label><input id="homepage" type="checkbox">网站首页</label>
+                <label><input id="archive" type="checkbox" checked>作品档案</label>
+                <label><input id="visible" type="checkbox" checked>公开显示</label>
+              </div>
+            </fieldset>
+
+            <div class="publish-row">
+              <p class="status" id="publish-status" aria-live="polite"></p>
+              <button class="publish" id="publish-button" type="submit">发布到网站</button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="success-dialog">
+    <p class="eyebrow">PUBLISHED</p>
+    <h2>已经提交，网站正在更新。</h2>
+    <p>GitHub 会自动处理图片并重新发布，通常需要约一分钟。</p>
+    <div>
+      <a href="/" target="_blank">查看网站 ↗</a>
+      <button id="success-close" type="button">继续管理</button>
+    </div>
+  </dialog>
+
+  <script type="module" src="/admin/admin.js"></script>
+</body>
+</html>
