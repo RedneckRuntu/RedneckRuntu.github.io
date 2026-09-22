@@ -1,4 +1,4 @@
-import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { copyFile, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
 
@@ -94,6 +94,7 @@ await writePage('/about/', layout({ title:`About — ${site.name}`, route:'/abou
 await writePage('/404/', layout({ title:`Page not found — ${site.name}`, route:'/404/', body:`<section class="not-found"><p>404</p><h1>Page not found.</h1><a class="text-link" href="/">Back to photography</a></section>` }));
 await copyFile(path.join(root, 'src/styles.css'), path.join(dist, 'styles.css'));
 await copyFile(path.join(root, 'src/client.js'), path.join(dist, 'client.js'));
+await cp(path.join(root, 'src/admin'), path.join(dist, 'admin'), { recursive: true });
 await copyFile(path.join(root, 'CNAME'), path.join(dist, 'CNAME'));
 await writeFile(path.join(dist, '.nojekyll'), '');
 await writeFile(path.join(dist, 'favicon.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#151515"/><path d="M17 16h13c12 0 19 6 19 16s-7 16-19 16H17V16Zm12 25c7 0 11-3 11-9s-4-9-11-9h-4v18h4Z" fill="#f3f1ec"/></svg>`);
