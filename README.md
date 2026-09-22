@@ -4,6 +4,19 @@
 
 ## 日常工作流程
 
+### 无代码可视化后台（推荐）
+
+访问 `https://daijinyan.top/admin/`，使用只授权给本仓库的 GitHub 细粒度访问令牌连接。后台支持：
+
+- 上传 JPG、PNG 或 WebP，并自动识别横竖方向；
+- 修改标题、日期、地点、Project、Category 与项目内顺序；
+- 控制照片是否进入首页、精选页、Archive，以及是否公开显示；
+- 一次点击完成图片与 JSON 数据的原子提交，随后由 GitHub Actions 自动发布。
+
+令牌仅保存在当前浏览器标签页的内存中，刷新或关闭页面后需要重新输入，不会写入仓库、URL 或浏览器本地存储。建议使用 GitHub Fine-grained personal access token：Repository access 仅选择 `RedneckRuntu.github.io`，Repository permissions 仅将 Contents 设为 Read and write，并设置有效期。
+
+### 本地脚本流程
+
 1. 将导出的 JPG 放进 `content/photos/`，建议使用 sRGB，长边 2400–4000 px，不要上传 RAW。
 2. 使用 `npm run add-photo` 写入作品信息，或直接编辑 `content/data/photos.json`。
 3. 运行 `npm run build`。它会先检查数据，再自动生成多尺寸 WebP、全部页面、站点地图和 404 页面。
