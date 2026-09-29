@@ -47,15 +47,15 @@
     "src": "coastal-crossing.jpg",
     "title": "Coastal Crossing",
     "date": "2026",
-    "location": "Hokkaido",
-    "project": "hokkaido",
+    "location": "Kamakura",
+    "project": "tokyo",
     "categories": [
       "street",
       "travel"
     ],
     "orientation": "portrait",
     "featured": true,
-    "homepage": true,
+    "homepage": false,
     "homepageOrder": 3,
     "archive": true,
     "order": 2,
