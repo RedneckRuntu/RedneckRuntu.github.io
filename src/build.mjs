@@ -53,7 +53,7 @@ const projectArtwork = (project, options = {}) => {
   return `<div class="project-artwork">${artwork}</div>`;
 };
 
-const nav = `<header class="site-header"><a class="identity" href="/" aria-label="Dai Jinyan Photography — Home"><span>DAI JINYAN</span><span>PHOTOGRAPHY</span></a><nav class="site-nav" aria-label="Primary"><a href="/projects/">PROJECTS</a><a href="/photographs/">PHOTOGRAPHS</a><a href="/archive/">ARCHIVE</a><a href="/about/">ABOUT</a></nav></header>`;
+const nav = `<header class="site-header"><a class="identity" href="/" aria-label="Dai Jinyan Photography — Home"><span>DAI JINYAN</span><span>PHOTOGRAPHY</span></a><nav class="site-nav" aria-label="Primary"><a href="/">ARCHIVE</a><a href="/photographs/">PHOTOGRAPHS</a><a href="/projects/">PROJECTS</a><a href="/about/">ABOUT</a></nav></header>`;
 const footer = `<footer class="site-footer"><span>© ${new Date().getFullYear()} DAI JINYAN</span><a href="#top">BACK TO TOP ↑</a></footer>`;
 const lightbox = `<dialog class="lightbox" aria-label="Photograph viewer"><button class="lightbox-close" type="button" aria-label="Close">CLOSE</button><button class="lightbox-prev" type="button" aria-label="Previous photograph">←</button><figure><img alt=""><figcaption></figcaption></figure><button class="lightbox-next" type="button" aria-label="Next photograph">→</button></dialog>`;
 const layout = ({ title, description = site.description, route = '/', body, bodyClass = '', themeColor = '#f3f1ec' }) => {
@@ -68,14 +68,14 @@ const writePage = async (route, html) => {
   await writeFile(path.join(folder, 'index.html'), html);
 };
 
-const homeProjects = projects.filter((project) => project.featured && photoById.has(project.cover)).sort((a,b) => a.homepageOrder - b.homepageOrder);
-const selected = photos.filter((photo) => photo.homepage).sort((a,b) => a.homepageOrder - b.homepageOrder).slice(0,4);
-const projectRows = homeProjects.map((project, index) => {
-  const theme = projectThemes[project.id] || projectThemes.other;
-  return `<article class="project-row project-theme project-theme-${escapeHtml(project.id)}" data-reveal><a class="project-image" href="/projects/${project.slug}/">${projectArtwork(project)}</a><div class="project-meta"><span class="project-season">${escapeHtml(theme.season)}</span><span class="project-index">${String(index + 1).padStart(2, '0')} / ${escapeHtml(project.year)}</span><h3><a href="/projects/${project.slug}/">${escapeHtml(project.title)}</a></h3><p>${escapeHtml(project.subtitle)}</p><a class="text-link" href="/projects/${project.slug}/">View project</a></div></article>`;
-}).join('');
-const selectedGrid = selected.map((photo) => `<figure data-reveal>${image(photo, { lightbox: true })}<figcaption>${escapeHtml(photo.location)} · ${escapeHtml(photo.date)}</figcaption></figure>`).join('');
-await writePage('/', layout({ title:site.title, route:'/', body:`<section class="section home-projects"><div class="section-head"><p class="section-label">Selected Projects</p><h2 class="section-intro">Photographs shaped by place, distance and the changing character of light.</h2></div>${projectRows}</section><section class="section"><div class="section-head"><p class="section-label">Selected Photographs</p><h2 class="section-intro">Independent images, edited as a quiet sequence.</h2></div><div class="selected-grid">${selectedGrid}</div></section>` }));
+const archivePhotos = photos.filter((photo) => photo.archive).sort((a,b) => String(b.date).localeCompare(String(a.date)));
+const archiveItems = archivePhotos.map((photo) => `<figure data-archive-item data-year="${escapeHtml(String(photo.date).slice(0,4))}" data-location="${escapeHtml(slugText(photo.location))}" data-project="${escapeHtml(photo.project)}" data-categories="${escapeHtml(photo.categories.join(' '))}">${image(photo, { lightbox:true })}<figcaption><span>${escapeHtml(photo.title)}</span><span>${escapeHtml(photo.location)} · ${escapeHtml(photo.date)}</span></figcaption></figure>`).join('');
+const categoryFilters = categories.map((category) => `<button type="button" data-filter="${escapeHtml(category.id)}">${escapeHtml(category.title)}</button>`).join('');
+const yearFilters = [...new Set(archivePhotos.map((photo) => String(photo.date).slice(0,4)))].filter(Boolean).map((year) => `<button type="button" data-filter="${escapeHtml(year)}">${escapeHtml(year)}</button>`).join('');
+const locationFilters = [...new Set(archivePhotos.map((photo) => photo.location))].filter(Boolean).map((location) => `<button type="button" data-filter="${escapeHtml(slugText(location))}">${escapeHtml(location)}</button>`).join('');
+const projectFilters = projects.map((project) => `<button type="button" data-filter="${escapeHtml(project.id)}">${escapeHtml(project.title)}</button>`).join('');
+const archiveBody = `<header class="page-intro archive-intro"><p class="section-label">Archive</p><h1>A growing record of places, years and recurring subjects.</h1></header><div class="archive-toolbar" aria-label="Filter archive"><div><span>View</span><button class="is-active" type="button" data-filter="all">All</button>${yearFilters}${locationFilters}</div><div><span>Series / Subject</span>${projectFilters}${categoryFilters}</div></div><section class="archive-grid" aria-live="polite">${archiveItems}</section><p class="archive-empty" hidden>No photographs match this view.</p>`;
+await writePage('/', layout({ title:site.title, route:'/', body:archiveBody }));
 
 const projectCards = projects.sort((a,b) => a.homepageOrder - b.homepageOrder).map((project, index) => {
   const theme = projectThemes[project.id] || projectThemes.other;
@@ -93,13 +93,7 @@ for (const project of projects) {
 const photographGrid = photos.filter((photo) => photo.featured).map((photo) => `<figure data-reveal>${image(photo, { lightbox:true })}<figcaption><span>${escapeHtml(photo.title)}</span><span>${escapeHtml(photo.location)} · ${escapeHtml(photo.date)}</span></figcaption></figure>`).join('');
 await writePage('/photographs/', layout({ title:`Photographs — ${site.name}`, route:'/photographs/', body:`<header class="page-intro"><p class="section-label">Selected Works</p><h1>Photographs that stand on their own.</h1></header><section class="photograph-grid">${photographGrid}</section>` }));
 
-const archivePhotos = photos.filter((photo) => photo.archive).sort((a,b) => String(b.date).localeCompare(String(a.date)));
-const archiveItems = archivePhotos.map((photo) => `<figure data-archive-item data-year="${escapeHtml(String(photo.date).slice(0,4))}" data-location="${escapeHtml(slugText(photo.location))}" data-project="${escapeHtml(photo.project)}" data-categories="${escapeHtml(photo.categories.join(' '))}">${image(photo, { lightbox:true })}<figcaption><span>${escapeHtml(photo.title)}</span><span>${escapeHtml(photo.location)} · ${escapeHtml(photo.date)}</span></figcaption></figure>`).join('');
-const categoryFilters = categories.map((category) => `<button type="button" data-filter="${escapeHtml(category.id)}">${escapeHtml(category.title)}</button>`).join('');
-const yearFilters = [...new Set(archivePhotos.map((photo) => String(photo.date).slice(0,4)))].filter(Boolean).map((year) => `<button type="button" data-filter="${escapeHtml(year)}">${escapeHtml(year)}</button>`).join('');
-const locationFilters = [...new Set(archivePhotos.map((photo) => photo.location))].filter(Boolean).map((location) => `<button type="button" data-filter="${escapeHtml(slugText(location))}">${escapeHtml(location)}</button>`).join('');
-const projectFilters = projects.map((project) => `<button type="button" data-filter="${escapeHtml(project.id)}">${escapeHtml(project.title)}</button>`).join('');
-await writePage('/archive/', layout({ title:`Archive — ${site.name}`, route:'/archive/', body:`<header class="page-intro archive-intro"><p class="section-label">Archive</p><h1>A growing record of places, years and recurring subjects.</h1></header><div class="archive-toolbar" aria-label="Filter archive"><div><span>View</span><button class="is-active" type="button" data-filter="all">All</button>${yearFilters}${locationFilters}</div><div><span>Series / Subject</span>${projectFilters}${categoryFilters}</div></div><section class="archive-grid" aria-live="polite">${archiveItems}</section><p class="archive-empty" hidden>No photographs match this view.</p>` }));
+await writePage('/archive/', layout({ title:`Archive — ${site.name}`, route:'/archive/', body:archiveBody }));
 
 await writePage('/about/', layout({ title:`About — ${site.name}`, route:'/about/', body:`<section class="about"><p class="section-label">About</p><h1>DAI JINYAN</h1><div class="about-copy"><p>Dai Jinyan is a photographer based in China.</p><p>His current work follows ordinary places, changing weather and the small visual frictions that make a familiar scene feel newly visible. The archive grows through ongoing studies of Tokyo, Hokkaido, Nanjing and Suzhou.</p></div><div class="about-meta"><span>China</span><span>Working since 2026</span></div></section>` }));
 
