@@ -13,11 +13,11 @@ const categories = (await readJson('categories.json')).filter((item) => item.vis
 const photos = (await readJson('photos.json')).filter((item) => item.visible);
 const photoById = new Map(photos.map((photo) => [photo.id, photo]));
 const projectThemes = {
-  tokyo: { season: 'Tokyo / High summer', mark: '夏', color: '#d4543d' },
-  hokkaido: { season: 'Hokkaido / Deep winter', mark: '雪', color: '#4f7182' },
-  nanjing: { season: 'Nanjing / Plane-tree season', mark: '城', color: '#9a4b35' },
-  suzhou: { season: 'Suzhou / Garden mist', mark: '水', color: '#3f6859' },
-  other: { season: 'Elsewhere / Open notes', mark: '余', color: '#615866' }
+  tokyo: { season: 'Tokyo / High summer', color: '#d4543d' },
+  hokkaido: { season: 'Hokkaido / Deep winter', color: '#4f7182' },
+  nanjing: { season: 'Nanjing / Plane-tree season', color: '#9a4b35' },
+  suzhou: { season: 'Suzhou / Garden mist', color: '#3f6859' },
+  other: { season: 'Elsewhere / Open notes', color: '#615866' }
 };
 
 const escapeHtml = (value = '') => String(value).replace(/[&<>\"']/g, (character) => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[character]));
@@ -49,9 +49,8 @@ const image = (photo, { eager = false, lightbox = false } = {}) => {
 };
 const projectArtwork = (project, options = {}) => {
   const cover = photoById.get(project.cover);
-  const theme = projectThemes[project.id] || projectThemes.other;
   const artwork = cover ? image(cover, options) : `<div class="project-placeholder" role="img" aria-label="${escapeHtml(project.title)} album awaiting photographs"><span>${escapeHtml(project.title)}</span><small>New album / awaiting photographs</small></div>`;
-  return `<div class="project-artwork" data-mark="${escapeHtml(theme.mark)}">${artwork}</div>`;
+  return `<div class="project-artwork">${artwork}</div>`;
 };
 
 const nav = `<header class="site-header"><a class="identity" href="/" aria-label="Dai Jinyan Photography — Home"><span>DAI JINYAN</span><span>PHOTOGRAPHY</span></a><nav class="site-nav" aria-label="Primary"><a href="/projects/">PROJECTS</a><a href="/photographs/">PHOTOGRAPHS</a><a href="/archive/">ARCHIVE</a><a href="/about/">ABOUT</a></nav></header>`;
@@ -60,7 +59,7 @@ const lightbox = `<dialog class="lightbox" aria-label="Photograph viewer"><butto
 const layout = ({ title, description = site.description, route = '/', body, bodyClass = '', themeColor = '#f3f1ec' }) => {
   const canonical = new URL(route, `${site.url}/`).href;
   const structured = JSON.stringify({ '@context':'https://schema.org', '@type':'Person', name:'Dai Jinyan', url:site.url, jobTitle:'Photographer' });
-  return `<!doctype html><html lang="en" id="top"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="${escapeHtml(themeColor)}"><title>${escapeHtml(title)}</title><meta name="description" content="${escapeHtml(description)}"><link rel="canonical" href="${canonical}"><meta property="og:type" content="website"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(description)}"><meta property="og:url" content="${canonical}"><meta name="twitter:card" content="summary"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="stylesheet" href="/styles.css?v=20260929-city-themes"><script type="application/ld+json">${structured}</script><script defer src="/client.js"></script></head><body class="${escapeHtml(bodyClass)}"><a class="skip-link" href="#content">Skip to photographs</a>${nav}<main id="content">${body}</main>${footer}${lightbox}</body></html>`;
+  return `<!doctype html><html lang="en" id="top"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="${escapeHtml(themeColor)}"><title>${escapeHtml(title)}</title><meta name="description" content="${escapeHtml(description)}"><link rel="canonical" href="${canonical}"><meta property="og:type" content="website"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(description)}"><meta property="og:url" content="${canonical}"><meta name="twitter:card" content="summary"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="stylesheet" href="/styles.css?v=20260929-city-themes-2"><script type="application/ld+json">${structured}</script><script defer src="/client.js"></script></head><body class="${escapeHtml(bodyClass)}"><a class="skip-link" href="#content">Skip to photographs</a>${nav}<main id="content">${body}</main>${footer}${lightbox}</body></html>`;
 };
 
 const writePage = async (route, html) => {
@@ -89,7 +88,7 @@ for (const project of projects) {
   const theme = projectThemes[project.id] || projectThemes.other;
   const projectPhotos = photos.filter((photo) => photo.project === project.id).sort((a,b) => a.order - b.order);
   const sequence = projectPhotos.length ? projectPhotos.map((photo, index) => `<figure class="sequence-item sequence-${index % 4}" data-reveal>${image(photo, { lightbox:true, eager:index === 0 })}<figcaption><span>${String(index + 1).padStart(2,'0')}</span><span>${escapeHtml(photo.location)} · ${escapeHtml(photo.date)}</span></figcaption></figure>`).join('') : `<p class="sequence-empty">This album is ready for new photographs.</p>`;
-  await writePage(`/projects/${project.slug}/`, layout({ title:`${project.title} — ${site.name}`, description:project.description, route:`/projects/${project.slug}/`, bodyClass:`project-theme project-theme-page project-theme-${project.id}`, themeColor:theme.color, body:`<header class="project-intro"><span class="project-intro-mark" aria-hidden="true">${escapeHtml(theme.mark)}</span><div class="project-intro-labels"><p class="section-label">Project / ${escapeHtml(project.year)}</p><p class="project-season">${escapeHtml(theme.season)}</p></div><h1>${escapeHtml(project.title)}</h1><div class="project-intro-details"><p>${escapeHtml(project.description)}</p><dl><dt>Location</dt><dd>${escapeHtml(project.location)}</dd><dt>Works</dt><dd>${projectPhotos.length}</dd><dt>Status</dt><dd>Ongoing</dd></dl></div></header><section class="sequence" aria-label="${escapeHtml(project.title)} photograph sequence">${sequence}</section><nav class="project-end" aria-label="Project navigation"><a href="/projects/">All projects</a><a href="#top">Back to top ↑</a></nav>` }));
+  await writePage(`/projects/${project.slug}/`, layout({ title:`${project.title} — ${site.name}`, description:project.description, route:`/projects/${project.slug}/`, bodyClass:`project-theme project-theme-page project-theme-${project.id}`, themeColor:theme.color, body:`<header class="project-intro"><div class="project-intro-labels"><p class="section-label">Project / ${escapeHtml(project.year)}</p><p class="project-season">${escapeHtml(theme.season)}</p></div><h1>${escapeHtml(project.title)}</h1><div class="project-intro-details"><p>${escapeHtml(project.description)}</p><dl><dt>Location</dt><dd>${escapeHtml(project.location)}</dd><dt>Works</dt><dd>${projectPhotos.length}</dd><dt>Status</dt><dd>Ongoing</dd></dl></div></header><section class="sequence" aria-label="${escapeHtml(project.title)} photograph sequence">${sequence}</section><nav class="project-end" aria-label="Project navigation"><a href="/projects/">All projects</a><a href="#top">Back to top ↑</a></nav>` }));
 }
 
 const photographGrid = photos.filter((photo) => photo.featured).map((photo) => `<figure data-reveal>${image(photo, { lightbox:true })}<figcaption><span>${escapeHtml(photo.title)}</span><span>${escapeHtml(photo.location)} · ${escapeHtml(photo.date)}</span></figcaption></figure>`).join('');
