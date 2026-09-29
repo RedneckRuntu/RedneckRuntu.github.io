@@ -380,7 +380,7 @@
       "travel"
     ],
     "orientation": "landscape",
-    "featured": false,
+    "featured": true,
     "homepage": false,
     "homepageOrder": 999,
     "archive": true,
