@@ -322,5 +322,27 @@
     "caption": "",
     "alt": "At the foot of Mount Moiwa, I see Sapporo",
     "visible": true
+  },
+  {
+    "id": "a7402161-1",
+    "src": "a7402161-1.jpg",
+    "title": "At the foot of Mount Tengu",
+    "date": "2026-01",
+    "location": "Otaru",
+    "project": "hokkaido",
+    "categories": [
+      "landscape",
+      "night",
+      "travel"
+    ],
+    "orientation": "landscape",
+    "featured": false,
+    "homepage": false,
+    "homepageOrder": 999,
+    "archive": true,
+    "order": 9,
+    "caption": "",
+    "alt": "Waiting for the cable car at the foot of Mount Tengu",
+    "visible": true
   }
 ]
