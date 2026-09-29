@@ -40,6 +40,10 @@ const image = (photo, { eager = false, lightbox = false } = {}) => {
   const tag = `<img src="/images/${largest}" srcset="${srcset}" sizes="(max-width: 720px) 94vw, 78vw" width="${photo.width}" height="${photo.height}" alt="${escapeHtml(photo.alt)}" decoding="async" loading="${eager ? 'eager' : 'lazy'}"${eager ? ' fetchpriority="high"' : ''}>`;
   return lightbox ? `<button class="image-button" type="button" data-lightbox="${escapeHtml(photo.id)}" aria-label="Open ${escapeHtml(photo.title || 'photograph')} in full view">${tag}</button>` : tag;
 };
+const projectArtwork = (project, options = {}) => {
+  const cover = photoById.get(project.cover);
+  return cover ? image(cover, options) : `<div class="project-placeholder" role="img" aria-label="${escapeHtml(project.title)} album awaiting photographs"><span>${escapeHtml(project.title)}</span><small>New album / awaiting photographs</small></div>`;
+};
 
 const nav = `<header class="site-header"><a class="identity" href="/" aria-label="Dai Jinyan Photography — Home"><span>DAI JINYAN</span><span>PHOTOGRAPHY</span></a><nav class="site-nav" aria-label="Primary"><a href="/projects/">PROJECTS</a><a href="/photographs/">PHOTOGRAPHS</a><a href="/archive/">ARCHIVE</a><a href="/about/">ABOUT</a></nav></header>`;
 const footer = `<footer class="site-footer"><span>© ${new Date().getFullYear()} DAI JINYAN</span><a href="#top">BACK TO TOP ↑</a></footer>`;
@@ -56,25 +60,23 @@ const writePage = async (route, html) => {
   await writeFile(path.join(folder, 'index.html'), html);
 };
 
-const homeProjects = projects.filter((project) => project.featured).sort((a,b) => a.homepageOrder - b.homepageOrder);
+const homeProjects = projects.filter((project) => project.featured && photoById.has(project.cover)).sort((a,b) => a.homepageOrder - b.homepageOrder);
 const selected = photos.filter((photo) => photo.homepage).sort((a,b) => a.homepageOrder - b.homepageOrder).slice(0,4);
 const hero = photoById.get('old-building-yellow-flowers');
 const projectRows = homeProjects.map((project, index) => {
-  const cover = photoById.get(project.cover);
-  return `<article class="project-row" data-reveal><a class="project-image" href="/projects/${project.slug}/">${image(cover)}</a><div class="project-meta"><span class="project-index">${String(index + 1).padStart(2, '0')} / ${escapeHtml(project.year)}</span><h3><a href="/projects/${project.slug}/">${escapeHtml(project.title)}</a></h3><p>${escapeHtml(project.subtitle)}</p><a class="text-link" href="/projects/${project.slug}/">View project</a></div></article>`;
+  return `<article class="project-row" data-reveal><a class="project-image" href="/projects/${project.slug}/">${projectArtwork(project)}</a><div class="project-meta"><span class="project-index">${String(index + 1).padStart(2, '0')} / ${escapeHtml(project.year)}</span><h3><a href="/projects/${project.slug}/">${escapeHtml(project.title)}</a></h3><p>${escapeHtml(project.subtitle)}</p><a class="text-link" href="/projects/${project.slug}/">View project</a></div></article>`;
 }).join('');
 const selectedGrid = selected.map((photo) => `<figure data-reveal>${image(photo, { lightbox: true })}<figcaption>${escapeHtml(photo.location)} · ${escapeHtml(photo.date)}</figcaption></figure>`).join('');
 await writePage('/', layout({ title:site.title, route:'/', body:`<section class="hero"><p class="hero-kicker">Photography / 2026—</p><h1 class="hero-title">DAI <span>JINYAN</span></h1><figure class="hero-image">${image(hero, { eager:true })}<figcaption class="image-note"><span>Nanjing</span><span>2026</span></figcaption></figure></section><section class="section"><div class="section-head"><p class="section-label">Selected Projects</p><h2 class="section-intro">Photographs shaped by place, distance and the changing character of light.</h2></div>${projectRows}</section><section class="section"><div class="section-head"><p class="section-label">Selected Photographs</p><h2 class="section-intro">Independent images, edited as a quiet sequence.</h2></div><div class="selected-grid">${selectedGrid}</div></section>` }));
 
 const projectCards = projects.sort((a,b) => a.homepageOrder - b.homepageOrder).map((project, index) => {
-  const cover = photoById.get(project.cover);
-  return `<article class="index-project"><a href="/projects/${project.slug}/">${image(cover)}<div class="index-project-copy"><span>${String(index + 1).padStart(2,'0')} · ${escapeHtml(project.year)}</span><h2>${escapeHtml(project.title)}</h2><p>${escapeHtml(project.subtitle)}</p></div></a></article>`;
+  return `<article class="index-project"><a href="/projects/${project.slug}/">${projectArtwork(project)}<div class="index-project-copy"><span>${String(index + 1).padStart(2,'0')} · ${escapeHtml(project.year)}</span><h2>${escapeHtml(project.title)}</h2><p>${escapeHtml(project.subtitle)}</p></div></a></article>`;
 }).join('');
 await writePage('/projects/', layout({ title:`Projects — ${site.name}`, route:'/projects/', body:`<header class="page-intro"><p class="section-label">Projects / Series</p><h1>Long-form work, arranged as photographic essays.</h1></header><section class="project-index">${projectCards}</section>` }));
 
 for (const project of projects) {
   const projectPhotos = photos.filter((photo) => photo.project === project.id).sort((a,b) => a.order - b.order);
-  const sequence = projectPhotos.map((photo, index) => `<figure class="sequence-item sequence-${index % 4}" data-reveal>${image(photo, { lightbox:true, eager:index === 0 })}<figcaption><span>${String(index + 1).padStart(2,'0')}</span><span>${escapeHtml(photo.location)} · ${escapeHtml(photo.date)}</span></figcaption></figure>`).join('');
+  const sequence = projectPhotos.length ? projectPhotos.map((photo, index) => `<figure class="sequence-item sequence-${index % 4}" data-reveal>${image(photo, { lightbox:true, eager:index === 0 })}<figcaption><span>${String(index + 1).padStart(2,'0')}</span><span>${escapeHtml(photo.location)} · ${escapeHtml(photo.date)}</span></figcaption></figure>`).join('') : `<p class="sequence-empty">This album is ready for new photographs.</p>`;
   await writePage(`/projects/${project.slug}/`, layout({ title:`${project.title} — ${site.name}`, description:project.description, route:`/projects/${project.slug}/`, body:`<header class="project-intro"><p class="section-label">Project / ${escapeHtml(project.year)}</p><h1>${escapeHtml(project.title)}</h1><div><p>${escapeHtml(project.description)}</p><dl><dt>Location</dt><dd>${escapeHtml(project.location)}</dd><dt>Works</dt><dd>${projectPhotos.length}</dd><dt>Status</dt><dd>Ongoing</dd></dl></div></header><section class="sequence" aria-label="${escapeHtml(project.title)} photograph sequence">${sequence}</section><nav class="project-end" aria-label="Project navigation"><a href="/projects/">All projects</a><a href="#top">Back to top ↑</a></nav>` }));
 }
 
