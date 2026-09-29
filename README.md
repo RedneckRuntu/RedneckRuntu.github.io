@@ -89,7 +89,7 @@ Project 是有明确叙事顺序的摄影系列；Category 是照片属性。不
 
 - Project 是否出现由 `projects.json` 的 `featured` 决定，顺序由 `homepageOrder` 决定。
 - 单张照片是否出现由 `photos.json` 的 `homepage` 决定，顺序也由 `homepageOrder` 决定。
-- 首页 Hero 当前在 `src/build.mjs` 中指定为 `old-building-yellow-flowers`。更换时搜索 `const hero` 并替换照片 id。
+- 首页顶部直接展示相册目录，不设置独立 Hero 照片。
 
 ## 图片处理
 
