@@ -11,8 +11,8 @@
       "landscape"
     ],
     "orientation": "portrait",
-    "featured": true,
-    "homepage": true,
+    "featured": false,
+    "homepage": false,
     "homepageOrder": 1,
     "archive": true,
     "order": 1,
