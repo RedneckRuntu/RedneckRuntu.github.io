@@ -70,13 +70,12 @@ const writePage = async (route, html) => {
 
 const homeProjects = projects.filter((project) => project.featured && photoById.has(project.cover)).sort((a,b) => a.homepageOrder - b.homepageOrder);
 const selected = photos.filter((photo) => photo.homepage).sort((a,b) => a.homepageOrder - b.homepageOrder).slice(0,4);
-const hero = photoById.get('old-building-yellow-flowers');
 const projectRows = homeProjects.map((project, index) => {
   const theme = projectThemes[project.id] || projectThemes.other;
   return `<article class="project-row project-theme project-theme-${escapeHtml(project.id)}" data-reveal><a class="project-image" href="/projects/${project.slug}/">${projectArtwork(project)}</a><div class="project-meta"><span class="project-season">${escapeHtml(theme.season)}</span><span class="project-index">${String(index + 1).padStart(2, '0')} / ${escapeHtml(project.year)}</span><h3><a href="/projects/${project.slug}/">${escapeHtml(project.title)}</a></h3><p>${escapeHtml(project.subtitle)}</p><a class="text-link" href="/projects/${project.slug}/">View project</a></div></article>`;
 }).join('');
 const selectedGrid = selected.map((photo) => `<figure data-reveal>${image(photo, { lightbox: true })}<figcaption>${escapeHtml(photo.location)} · ${escapeHtml(photo.date)}</figcaption></figure>`).join('');
-await writePage('/', layout({ title:site.title, route:'/', body:`<section class="hero"><p class="hero-kicker">Photography / 2026—</p><h1 class="hero-title">DAI <span>JINYAN</span></h1><figure class="hero-image">${image(hero, { eager:true })}<figcaption class="image-note"><span>Nanjing</span><span>2026</span></figcaption></figure></section><section class="section"><div class="section-head"><p class="section-label">Selected Projects</p><h2 class="section-intro">Photographs shaped by place, distance and the changing character of light.</h2></div>${projectRows}</section><section class="section"><div class="section-head"><p class="section-label">Selected Photographs</p><h2 class="section-intro">Independent images, edited as a quiet sequence.</h2></div><div class="selected-grid">${selectedGrid}</div></section>` }));
+await writePage('/', layout({ title:site.title, route:'/', body:`<section class="section home-projects"><div class="section-head"><p class="section-label">Selected Projects</p><h2 class="section-intro">Photographs shaped by place, distance and the changing character of light.</h2></div>${projectRows}</section><section class="section"><div class="section-head"><p class="section-label">Selected Photographs</p><h2 class="section-intro">Independent images, edited as a quiet sequence.</h2></div><div class="selected-grid">${selectedGrid}</div></section>` }));
 
 const projectCards = projects.sort((a,b) => a.homepageOrder - b.homepageOrder).map((project, index) => {
   const theme = projectThemes[project.id] || projectThemes.other;
