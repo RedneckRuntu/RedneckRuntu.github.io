@@ -410,5 +410,27 @@
     "caption": "",
     "alt": "Shinjuku Gyoen National Garden is lush with greenery",
     "visible": true
+  },
+  {
+    "id": "a7403180-1",
+    "src": "a7403180-1.jpg",
+    "title": "The shrine in Fujinomiya",
+    "date": "2026-08",
+    "location": "Fujinomiya",
+    "project": "tokyo",
+    "categories": [
+      "architecture",
+      "landscape",
+      "travel"
+    ],
+    "orientation": "landscape",
+    "featured": false,
+    "homepage": false,
+    "homepageOrder": 999,
+    "archive": true,
+    "order": 10,
+    "caption": "",
+    "alt": "People are paying homage at the shrine located at the foot of Mount Fuji",
+    "visible": true
   }
 ]
