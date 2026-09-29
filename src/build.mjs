@@ -12,6 +12,13 @@ const projects = (await readJson('projects.json')).filter((item) => item.visible
 const categories = (await readJson('categories.json')).filter((item) => item.visible).sort((a,b) => a.order - b.order);
 const photos = (await readJson('photos.json')).filter((item) => item.visible);
 const photoById = new Map(photos.map((photo) => [photo.id, photo]));
+const projectThemes = {
+  tokyo: { season: 'Tokyo / High summer', mark: '夏', color: '#d4543d' },
+  hokkaido: { season: 'Hokkaido / Deep winter', mark: '雪', color: '#4f7182' },
+  nanjing: { season: 'Nanjing / Plane-tree season', mark: '城', color: '#9a4b35' },
+  suzhou: { season: 'Suzhou / Garden mist', mark: '水', color: '#3f6859' },
+  other: { season: 'Elsewhere / Open notes', mark: '余', color: '#615866' }
+};
 
 const escapeHtml = (value = '') => String(value).replace(/[&<>\"']/g, (character) => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[character]));
 const slugText = (value = '') => String(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -42,16 +49,18 @@ const image = (photo, { eager = false, lightbox = false } = {}) => {
 };
 const projectArtwork = (project, options = {}) => {
   const cover = photoById.get(project.cover);
-  return cover ? image(cover, options) : `<div class="project-placeholder" role="img" aria-label="${escapeHtml(project.title)} album awaiting photographs"><span>${escapeHtml(project.title)}</span><small>New album / awaiting photographs</small></div>`;
+  const theme = projectThemes[project.id] || projectThemes.other;
+  const artwork = cover ? image(cover, options) : `<div class="project-placeholder" role="img" aria-label="${escapeHtml(project.title)} album awaiting photographs"><span>${escapeHtml(project.title)}</span><small>New album / awaiting photographs</small></div>`;
+  return `<div class="project-artwork" data-mark="${escapeHtml(theme.mark)}">${artwork}</div>`;
 };
 
 const nav = `<header class="site-header"><a class="identity" href="/" aria-label="Dai Jinyan Photography — Home"><span>DAI JINYAN</span><span>PHOTOGRAPHY</span></a><nav class="site-nav" aria-label="Primary"><a href="/projects/">PROJECTS</a><a href="/photographs/">PHOTOGRAPHS</a><a href="/archive/">ARCHIVE</a><a href="/about/">ABOUT</a></nav></header>`;
 const footer = `<footer class="site-footer"><span>© ${new Date().getFullYear()} DAI JINYAN</span><a href="#top">BACK TO TOP ↑</a></footer>`;
 const lightbox = `<dialog class="lightbox" aria-label="Photograph viewer"><button class="lightbox-close" type="button" aria-label="Close">CLOSE</button><button class="lightbox-prev" type="button" aria-label="Previous photograph">←</button><figure><img alt=""><figcaption></figcaption></figure><button class="lightbox-next" type="button" aria-label="Next photograph">→</button></dialog>`;
-const layout = ({ title, description = site.description, route = '/', body }) => {
+const layout = ({ title, description = site.description, route = '/', body, bodyClass = '', themeColor = '#f3f1ec' }) => {
   const canonical = new URL(route, `${site.url}/`).href;
   const structured = JSON.stringify({ '@context':'https://schema.org', '@type':'Person', name:'Dai Jinyan', url:site.url, jobTitle:'Photographer' });
-  return `<!doctype html><html lang="en" id="top"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f3f1ec"><title>${escapeHtml(title)}</title><meta name="description" content="${escapeHtml(description)}"><link rel="canonical" href="${canonical}"><meta property="og:type" content="website"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(description)}"><meta property="og:url" content="${canonical}"><meta name="twitter:card" content="summary"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="stylesheet" href="/styles.css"><script type="application/ld+json">${structured}</script><script defer src="/client.js"></script></head><body><a class="skip-link" href="#content">Skip to photographs</a>${nav}<main id="content">${body}</main>${footer}${lightbox}</body></html>`;
+  return `<!doctype html><html lang="en" id="top"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="${escapeHtml(themeColor)}"><title>${escapeHtml(title)}</title><meta name="description" content="${escapeHtml(description)}"><link rel="canonical" href="${canonical}"><meta property="og:type" content="website"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(description)}"><meta property="og:url" content="${canonical}"><meta name="twitter:card" content="summary"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="stylesheet" href="/styles.css"><script type="application/ld+json">${structured}</script><script defer src="/client.js"></script></head><body class="${escapeHtml(bodyClass)}"><a class="skip-link" href="#content">Skip to photographs</a>${nav}<main id="content">${body}</main>${footer}${lightbox}</body></html>`;
 };
 
 const writePage = async (route, html) => {
@@ -64,20 +73,23 @@ const homeProjects = projects.filter((project) => project.featured && photoById.
 const selected = photos.filter((photo) => photo.homepage).sort((a,b) => a.homepageOrder - b.homepageOrder).slice(0,4);
 const hero = photoById.get('old-building-yellow-flowers');
 const projectRows = homeProjects.map((project, index) => {
-  return `<article class="project-row" data-reveal><a class="project-image" href="/projects/${project.slug}/">${projectArtwork(project)}</a><div class="project-meta"><span class="project-index">${String(index + 1).padStart(2, '0')} / ${escapeHtml(project.year)}</span><h3><a href="/projects/${project.slug}/">${escapeHtml(project.title)}</a></h3><p>${escapeHtml(project.subtitle)}</p><a class="text-link" href="/projects/${project.slug}/">View project</a></div></article>`;
+  const theme = projectThemes[project.id] || projectThemes.other;
+  return `<article class="project-row project-theme project-theme-${escapeHtml(project.id)}" data-reveal><a class="project-image" href="/projects/${project.slug}/">${projectArtwork(project)}</a><div class="project-meta"><span class="project-season">${escapeHtml(theme.season)}</span><span class="project-index">${String(index + 1).padStart(2, '0')} / ${escapeHtml(project.year)}</span><h3><a href="/projects/${project.slug}/">${escapeHtml(project.title)}</a></h3><p>${escapeHtml(project.subtitle)}</p><a class="text-link" href="/projects/${project.slug}/">View project</a></div></article>`;
 }).join('');
 const selectedGrid = selected.map((photo) => `<figure data-reveal>${image(photo, { lightbox: true })}<figcaption>${escapeHtml(photo.location)} · ${escapeHtml(photo.date)}</figcaption></figure>`).join('');
 await writePage('/', layout({ title:site.title, route:'/', body:`<section class="hero"><p class="hero-kicker">Photography / 2026—</p><h1 class="hero-title">DAI <span>JINYAN</span></h1><figure class="hero-image">${image(hero, { eager:true })}<figcaption class="image-note"><span>Nanjing</span><span>2026</span></figcaption></figure></section><section class="section"><div class="section-head"><p class="section-label">Selected Projects</p><h2 class="section-intro">Photographs shaped by place, distance and the changing character of light.</h2></div>${projectRows}</section><section class="section"><div class="section-head"><p class="section-label">Selected Photographs</p><h2 class="section-intro">Independent images, edited as a quiet sequence.</h2></div><div class="selected-grid">${selectedGrid}</div></section>` }));
 
 const projectCards = projects.sort((a,b) => a.homepageOrder - b.homepageOrder).map((project, index) => {
-  return `<article class="index-project"><a href="/projects/${project.slug}/">${projectArtwork(project)}<div class="index-project-copy"><span>${String(index + 1).padStart(2,'0')} · ${escapeHtml(project.year)}</span><h2>${escapeHtml(project.title)}</h2><p>${escapeHtml(project.subtitle)}</p></div></a></article>`;
+  const theme = projectThemes[project.id] || projectThemes.other;
+  return `<article class="index-project project-theme project-theme-${escapeHtml(project.id)}"><a href="/projects/${project.slug}/">${projectArtwork(project)}<div class="index-project-copy"><span class="project-season">${escapeHtml(theme.season)}</span><span>${String(index + 1).padStart(2,'0')} · ${escapeHtml(project.year)}</span><h2>${escapeHtml(project.title)}</h2><p>${escapeHtml(project.subtitle)}</p></div></a></article>`;
 }).join('');
 await writePage('/projects/', layout({ title:`Projects — ${site.name}`, route:'/projects/', body:`<header class="page-intro"><p class="section-label">Projects / Series</p><h1>Long-form work, arranged as photographic essays.</h1></header><section class="project-index">${projectCards}</section>` }));
 
 for (const project of projects) {
+  const theme = projectThemes[project.id] || projectThemes.other;
   const projectPhotos = photos.filter((photo) => photo.project === project.id).sort((a,b) => a.order - b.order);
   const sequence = projectPhotos.length ? projectPhotos.map((photo, index) => `<figure class="sequence-item sequence-${index % 4}" data-reveal>${image(photo, { lightbox:true, eager:index === 0 })}<figcaption><span>${String(index + 1).padStart(2,'0')}</span><span>${escapeHtml(photo.location)} · ${escapeHtml(photo.date)}</span></figcaption></figure>`).join('') : `<p class="sequence-empty">This album is ready for new photographs.</p>`;
-  await writePage(`/projects/${project.slug}/`, layout({ title:`${project.title} — ${site.name}`, description:project.description, route:`/projects/${project.slug}/`, body:`<header class="project-intro"><p class="section-label">Project / ${escapeHtml(project.year)}</p><h1>${escapeHtml(project.title)}</h1><div><p>${escapeHtml(project.description)}</p><dl><dt>Location</dt><dd>${escapeHtml(project.location)}</dd><dt>Works</dt><dd>${projectPhotos.length}</dd><dt>Status</dt><dd>Ongoing</dd></dl></div></header><section class="sequence" aria-label="${escapeHtml(project.title)} photograph sequence">${sequence}</section><nav class="project-end" aria-label="Project navigation"><a href="/projects/">All projects</a><a href="#top">Back to top ↑</a></nav>` }));
+  await writePage(`/projects/${project.slug}/`, layout({ title:`${project.title} — ${site.name}`, description:project.description, route:`/projects/${project.slug}/`, bodyClass:`project-theme project-theme-page project-theme-${project.id}`, themeColor:theme.color, body:`<header class="project-intro"><span class="project-intro-mark" aria-hidden="true">${escapeHtml(theme.mark)}</span><div class="project-intro-labels"><p class="section-label">Project / ${escapeHtml(project.year)}</p><p class="project-season">${escapeHtml(theme.season)}</p></div><h1>${escapeHtml(project.title)}</h1><div class="project-intro-details"><p>${escapeHtml(project.description)}</p><dl><dt>Location</dt><dd>${escapeHtml(project.location)}</dd><dt>Works</dt><dd>${projectPhotos.length}</dd><dt>Status</dt><dd>Ongoing</dd></dl></div></header><section class="sequence" aria-label="${escapeHtml(project.title)} photograph sequence">${sequence}</section><nav class="project-end" aria-label="Project navigation"><a href="/projects/">All projects</a><a href="#top">Back to top ↑</a></nav>` }));
 }
 
 const photographGrid = photos.filter((photo) => photo.featured).map((photo) => `<figure data-reveal>${image(photo, { lightbox:true })}<figcaption><span>${escapeHtml(photo.title)}</span><span>${escapeHtml(photo.location)} · ${escapeHtml(photo.date)}</span></figcaption></figure>`).join('');
@@ -91,7 +103,7 @@ const locationFilters = [...new Set(archivePhotos.map((photo) => photo.location)
 const projectFilters = projects.map((project) => `<button type="button" data-filter="${escapeHtml(project.id)}">${escapeHtml(project.title)}</button>`).join('');
 await writePage('/archive/', layout({ title:`Archive — ${site.name}`, route:'/archive/', body:`<header class="page-intro archive-intro"><p class="section-label">Archive</p><h1>A growing record of places, years and recurring subjects.</h1></header><div class="archive-toolbar" aria-label="Filter archive"><div><span>View</span><button class="is-active" type="button" data-filter="all">All</button>${yearFilters}${locationFilters}</div><div><span>Series / Subject</span>${projectFilters}${categoryFilters}</div></div><section class="archive-grid" aria-live="polite">${archiveItems}</section><p class="archive-empty" hidden>No photographs match this view.</p>` }));
 
-await writePage('/about/', layout({ title:`About — ${site.name}`, route:'/about/', body:`<section class="about"><p class="section-label">About</p><h1>DAI JINYAN</h1><div class="about-copy"><p>Dai Jinyan is a photographer based in China.</p><p>His current work follows ordinary places, changing weather and the small visual frictions that make a familiar scene feel newly visible. <em>Nanjing × Zhenze</em> is an ongoing project begun in 2026.</p></div><div class="about-meta"><span>China</span><span>Working since 2026</span></div></section>` }));
+await writePage('/about/', layout({ title:`About — ${site.name}`, route:'/about/', body:`<section class="about"><p class="section-label">About</p><h1>DAI JINYAN</h1><div class="about-copy"><p>Dai Jinyan is a photographer based in China.</p><p>His current work follows ordinary places, changing weather and the small visual frictions that make a familiar scene feel newly visible. The archive grows through ongoing studies of Tokyo, Hokkaido, Nanjing and Suzhou.</p></div><div class="about-meta"><span>China</span><span>Working since 2026</span></div></section>` }));
 
 await writePage('/404/', layout({ title:`Page not found — ${site.name}`, route:'/404/', body:`<section class="not-found"><p>404</p><h1>Page not found.</h1><a class="text-link" href="/">Back to photography</a></section>` }));
 await copyFile(path.join(root, 'src/styles.css'), path.join(dist, 'styles.css'));
