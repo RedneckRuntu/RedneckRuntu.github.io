@@ -455,5 +455,28 @@
     "caption": "",
     "alt": "沼津海边归家的儿童 Children returning home from the Numazu seaside",
     "visible": true
+  },
+  {
+    "id": "a7401896-1",
+    "src": "a7401896-1.jpg",
+    "title": "Susukino",
+    "date": "2026-01",
+    "location": "Sapporo",
+    "project": "tokyo",
+    "categories": [
+      "architecture",
+      "street",
+      "night",
+      "travel"
+    ],
+    "orientation": "landscape",
+    "featured": false,
+    "homepage": false,
+    "homepageOrder": 999,
+    "archive": true,
+    "order": 12,
+    "caption": "",
+    "alt": "Susukino district in a heavy snowfall",
+    "visible": true
   }
 ]
