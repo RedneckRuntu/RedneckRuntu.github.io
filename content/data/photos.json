@@ -119,7 +119,7 @@
     ],
     "orientation": "portrait",
     "featured": true,
-    "homepage": false,
+    "homepage": true,
     "homepageOrder": 999,
     "archive": true,
     "order": 2,
