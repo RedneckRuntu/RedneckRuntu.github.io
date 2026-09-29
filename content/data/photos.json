@@ -213,5 +213,28 @@
     "caption": "",
     "alt": "No landmarks. Just people, traffic, and an ordinary street covered in snow.",
     "visible": true
+  },
+  {
+    "id": "a7402377-1",
+    "src": "a7402377-1.jpg",
+    "title": "Shibuya at night",
+    "date": "2026-01",
+    "location": "Shibuya",
+    "project": "tokyo",
+    "categories": [
+      "architecture",
+      "street",
+      "night",
+      "travel"
+    ],
+    "orientation": "portrait",
+    "featured": true,
+    "homepage": true,
+    "homepageOrder": 999,
+    "archive": true,
+    "order": 3,
+    "caption": "",
+    "alt": "The intersection with the largest pedestrian flow in the world",
+    "visible": true
   }
 ]
