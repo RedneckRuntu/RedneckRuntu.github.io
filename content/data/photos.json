@@ -33,8 +33,8 @@
       "travel"
     ],
     "orientation": "landscape",
-    "featured": true,
-    "homepage": true,
+    "featured": false,
+    "homepage": false,
     "homepageOrder": 2,
     "archive": true,
     "order": 1,
