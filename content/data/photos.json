@@ -388,5 +388,27 @@
     "caption": "",
     "alt": "Tokyo's Yurikamome Line",
     "visible": true
+  },
+  {
+    "id": "a7402308-1",
+    "src": "a7402308-1.jpg",
+    "title": "Shinjuku Gyoen National Garden",
+    "date": "2026-08",
+    "location": "Tokyo",
+    "project": "tokyo",
+    "categories": [
+      "architecture",
+      "landscape",
+      "travel"
+    ],
+    "orientation": "landscape",
+    "featured": false,
+    "homepage": false,
+    "homepageOrder": 999,
+    "archive": true,
+    "order": 9,
+    "caption": "",
+    "alt": "Shinjuku Gyoen National Garden is lush with greenery",
+    "visible": true
   }
 ]
