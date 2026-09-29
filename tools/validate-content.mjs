@@ -24,7 +24,7 @@ for (const photo of photos) {
   for (const category of photo.categories || []) if (!categoryIds.has(category)) failures.push(`Photo ${photo.id} uses missing category ${category}.`);
   try { await access(path.join(root, 'content/photos', photo.src)); } catch { failures.push(`Missing image file for ${photo.id}: ${photo.src}`); }
 }
-for (const project of projects) if (!photoIds.has(project.cover)) failures.push(`Project ${project.id} uses missing cover ${project.cover}.`);
+for (const project of projects) if (project.cover && !photoIds.has(project.cover)) failures.push(`Project ${project.id} uses missing cover ${project.cover}.`);
 if (failures.length) {
   console.error(failures.map((failure) => `• ${failure}`).join('\n'));
   process.exit(1);
