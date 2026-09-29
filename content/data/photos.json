@@ -132,7 +132,7 @@
     "src": "tokyo-bay.jpg",
     "title": "Across the Bay",
     "date": "2026",
-    "location": "Tokyo",
+    "location": "Odaiba",
     "project": "tokyo",
     "categories": [
       "landscape",
@@ -141,6 +141,7 @@
     "orientation": "landscape",
     "featured": true,
     "homepage": false,
+    "homepageOrder": 999,
     "archive": true,
     "order": 3,
     "caption": "",
