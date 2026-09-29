@@ -10,6 +10,16 @@ const observer = new IntersectionObserver((entries) => {
 }, { rootMargin: '120px 0px', threshold: 0.04 });
 document.querySelectorAll('[data-reveal]').forEach((element) => observer.observe(element));
 
+const archiveGrid = document.querySelector('.archive-grid');
+if (archiveGrid) {
+  const randomizedItems = [...archiveGrid.querySelectorAll('[data-archive-item]')];
+  for (let index = randomizedItems.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [randomizedItems[index], randomizedItems[randomIndex]] = [randomizedItems[randomIndex], randomizedItems[index]];
+  }
+  randomizedItems.forEach((item) => archiveGrid.appendChild(item));
+}
+
 const archiveButtons = [...document.querySelectorAll('[data-filter]')];
 const archiveItems = [...document.querySelectorAll('[data-archive-item]')];
 const archiveEmpty = document.querySelector('.archive-empty');
