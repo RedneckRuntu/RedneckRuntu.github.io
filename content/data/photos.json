@@ -367,5 +367,26 @@
     "caption": "",
     "alt": "Looking at the night view of Shinjuku from afar",
     "visible": true
+  },
+  {
+    "id": "a7402256-1",
+    "src": "a7402256-1.jpg",
+    "title": "Yurikamome Line",
+    "date": "2026-08",
+    "location": "Tokyo",
+    "project": "tokyo",
+    "categories": [
+      "architecture",
+      "travel"
+    ],
+    "orientation": "landscape",
+    "featured": false,
+    "homepage": false,
+    "homepageOrder": 999,
+    "archive": true,
+    "order": 8,
+    "caption": "",
+    "alt": "Tokyo's Yurikamome Line",
+    "visible": true
   }
 ]
