@@ -55,6 +55,53 @@ function fileBase64(file) {
   });
 }
 
+function canvasBlob(canvas, quality) {
+  return new Promise((resolve, reject) => canvas.toBlob(
+    (blob) => blob ? resolve(blob) : reject(new Error('照片优化失败，请换一张照片重试。')),
+    'image/jpeg', quality
+  ));
+}
+
+async function optimizeForWeb(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    const maxEdge = 6000;
+    const targetBytes = 18 * 1024 * 1024;
+    if (file.type === 'image/jpeg' && file.size <= targetBytes && Math.max(img.naturalWidth, img.naturalHeight) <= maxEdge) return file;
+    const initialScale = Math.min(1, maxEdge / Math.max(img.naturalWidth, img.naturalHeight));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(img.naturalWidth * initialScale));
+    canvas.height = Math.max(1, Math.round(img.naturalHeight * initialScale));
+    const context = canvas.getContext('2d', { alpha: false });
+    context.fillStyle = '#fff';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    let quality = .92;
+    let blob = await canvasBlob(canvas, quality);
+    while (blob.size > targetBytes && quality > .68) {
+      quality -= .08;
+      blob = await canvasBlob(canvas, quality);
+    }
+    if (blob.size > targetBytes) {
+      const scale = Math.sqrt(targetBytes / blob.size) * .94;
+      const resized = document.createElement('canvas');
+      resized.width = Math.max(1, Math.round(canvas.width * scale));
+      resized.height = Math.max(1, Math.round(canvas.height * scale));
+      const resizedContext = resized.getContext('2d', { alpha: false });
+      resizedContext.fillStyle = '#fff';
+      resizedContext.fillRect(0, 0, resized.width, resized.height);
+      resizedContext.drawImage(canvas, 0, 0, resized.width, resized.height);
+      blob = await canvasBlob(resized, .82);
+    }
+    const name = `${file.name.replace(/\.[^.]+$/, '') || 'photo'}.jpg`;
+    return new File([blob], name, { type: 'image/jpeg', lastModified: Date.now() });
+  } finally { URL.revokeObjectURL(url); }
+}
+
 async function readJson(path) {
   const file = await api(`/contents/${path}?ref=${BRANCH}`);
   return JSON.parse(decodeBase64(file.content));
@@ -264,6 +311,8 @@ $('#photo-file').addEventListener('change', (event) => {
   $('#photo-preview').src = URL.createObjectURL(file);
   $('#photo-preview').hidden = false;
   $('#drop-copy').hidden = true;
+  publishStatus.textContent = `已选择 ${(file.size / 1024 / 1024).toFixed(1)} MB 原图，发布时会自动优化。`;
+  publishStatus.className = 'status';
 });
 
 photoForm.addEventListener('submit', async (event) => {
@@ -275,28 +324,25 @@ photoForm.addEventListener('submit', async (event) => {
     publishStatus.className = 'status error';
     return;
   }
-  if (state.file && state.file.size > 15 * 1024 * 1024) {
-    publishStatus.textContent = '照片超过 15 MB，请先导出较小的 JPG。';
-    publishStatus.className = 'status error';
-    return;
-  }
   button.disabled = true;
-  publishStatus.textContent = '正在安全上传并更新网站，请不要关闭页面…';
+  publishStatus.textContent = state.file ? '正在优化大尺寸原图，请不要关闭页面…' : '正在更新网站，请不要关闭页面…';
   publishStatus.className = 'status';
   try {
     let id = existing?.id;
     let src = existing?.src;
     let orientation = existing?.orientation || 'landscape';
+    let uploadFile = null;
     if (state.file) {
-      const extension = (state.file.name.match(/\.[a-z0-9]+$/i)?.[0] || '.jpg').toLowerCase();
+      uploadFile = await optimizeForWeb(state.file);
+      publishStatus.textContent = `优化完成：${(uploadFile.size / 1024 / 1024).toFixed(1)} MB，正在上传并更新网站…`;
       if (!id) {
         const base = slugify(state.file.name) || `photo-${Date.now()}`;
         id = base;
         let suffix = 2;
         while (state.photos.some((item) => item.id === id)) id = `${base}-${suffix++}`;
       }
-      src = `${id}${extension}`;
-      const dimensions = await imageDimensions(state.file);
+      src = `${id}.jpg`;
+      const dimensions = await imageDimensions(uploadFile);
       orientation = dimensions.width >= dimensions.height ? 'landscape' : 'portrait';
     }
     const project = $('#project').value;
@@ -308,7 +354,7 @@ photoForm.addEventListener('submit', async (event) => {
       caption: existing?.caption || '', alt: $('#alt').value.trim(), visible: $('#visible').checked
     };
     const updated = existing ? state.photos.map((item) => item.id === existing.id ? next : item) : [...state.photos, next];
-    await publishCommit(updated, state.file, state.file ? `content/photos/${src}` : null);
+    await publishCommit(updated, uploadFile, uploadFile ? `content/photos/${src}` : null);
     state.photos = updated;
     state.editingId = next.id;
     state.file = null;
